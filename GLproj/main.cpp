@@ -1,8 +1,11 @@
 #include <GL/glut.h>
 #include <SOIL2.h>
-
+#include <cmath>
+#include "Lorry.h"
 int w = 0, h = 0;
 GLfloat xrotate, yrotate, zrotate;
+
+Lorry car;
 
 void Init(void)
 {
@@ -33,45 +36,51 @@ void draw_wheel(GLfloat x, GLfloat y, GLfloat z, int size, GLfloat of_x, GLfloat
 	glPopMatrix();
 }
 
-void draw_light(GLfloat x, GLfloat y, GLfloat z, int size, GLfloat of_x, GLfloat of_y, GLfloat of_z) {
+void draw_light(GLfloat x, GLfloat y, GLfloat z, int size, GLfloat of_x, GLfloat of_y, GLfloat of_z, GLenum num_light, int dir) {
+	GLfloat px = size * (x + of_x), py = size * (y + of_y), pz = size * (z + of_z);
 	glPushMatrix();
-	glTranslatef(size * (x + of_x), size * (y + of_y), size * (z + of_z));
+	glTranslatef(px, py, pz);
+
+	GLfloat light_diffuse[] = { 1.0, 1.0, 0.0 };
+	GLfloat light_position[] = { px + dir * 0.1, py, pz };
+	GLfloat light_spot_direction[] = { dir * 1.0, 0.0, 0.0 };
+	GLfloat light_ambient[] = { 1.1, 1.1, 1.1 };
+	glEnable(num_light);
+	glLightfv(num_light, GL_AMBIENT, light_ambient);
+	glLightfv(num_light, GL_DIFFUSE, light_diffuse);
+	glLightfv(num_light, GL_POSITION, light_position);
+	glLightf(num_light, GL_SPOT_CUTOFF, 30);
+	glLightfv(num_light, GL_SPOT_DIRECTION, light_spot_direction);
+
 	glutSolidSphere(size * 0.03, size * 10, size * 10);
 	glPopMatrix();
 }
-void draw_car(GLfloat x, GLfloat y, GLfloat z, int size) {
+void draw_car(GLfloat x, GLfloat y, GLfloat z,GLdouble turn, int size) {
 	glPushMatrix();
+	
 	glTranslatef(x, y, z);
+	glRotatef(turn, 0, 0, 1);
+	glRotatef(90, 1, 0, 0);
 	glColor3f(1.0f, 0, 0);
 	glutSolidCube(size * 0.3f);
 
 	glPushMatrix();
 	glColor3f(0, 0, 1.0f);
-	glTranslatef(size * (x + 0.25), size * (y - 0.05), size * z);
+	glTranslatef(size * ( + 0.25), size * ( - 0.05),0);
 	glutSolidCube(size * 0.2f);
 	glPopMatrix();
 
 	glColor3f(0.0f, 0.0f, 0.0f);
-	draw_wheel(x, y, z, size, 0.25, -0.15, 0.07);
-	draw_wheel(x, y, z, size, 0.25, -0.15, -0.07);
-	draw_wheel(x, y, z, size, -0.08, -0.15, -0.07);
-	draw_wheel(x, y, z, size, -0.08, -0.15, 0.07);
+	draw_wheel(0, 0, 0, size, 0.25, -0.15, 0.07);
+	draw_wheel(0, 0, 0, size, 0.25, -0.15, -0.07);
+	draw_wheel(0, 0, 0, size, -0.08, -0.15, -0.07);
+	draw_wheel(0, 0, 0, size, -0.08, -0.15, 0.07);
 
 	glColor3f(1.0f, 1.0f, 0.0f);
-	draw_light(x, y, z, size, 0.35, -0.1, -0.07);
-
-	GLfloat light3_diffuse[] = { 0.4, 0.7, 0.2 };
-	GLfloat light3_position[] = { size * (x + 0.35), size * (y - 0.1), size * (z - 0.07), 1.0 };
-	GLfloat light3_spot_direction[] = { 1.0, 1.0, 0.0 };
-	glEnable(GL_LIGHT0);
-	//glLightfv(GL_LIGHT0, GL_DIFFUSE, light3_diffuse);
-	glLightfv(GL_LIGHT0, GL_POSITION, light3_position);
-	//glLightf(GL_LIGHT0, GL_SPOT_CUTOFF, 30);
-	glLightfv(GL_LIGHT0, GL_SPOT_DIRECTION, light3_spot_direction);
-
-	draw_light(x, y, z, size, 0.35, -0.1, 0.07);
-	draw_light(x, y, z, size, -0.15, -0.1, -0.09);
-	draw_light(x, y, z, size, -0.15, -0.1, 0.09);
+	draw_light(0, 0, 0, size, 0.35, -0.1, -0.07, GL_LIGHT1, 1);
+	draw_light(0, 0, 0, size, 0.35, -0.1, 0.07, GL_LIGHT2, 1);
+	draw_light(0, 0, 0, size, -0.15, -0.1, -0.09, GL_LIGHT3, -1);
+	draw_light(0, 0, 0, size, -0.15, -0.1, 0.09, GL_LIGHT4, -1); 
 	glPopMatrix();
 }
 
@@ -121,8 +130,8 @@ void Update(void) {
 	glRotatef(xrotate, 1.0, 0.0, 0.0);
 	glRotatef(yrotate, 0.0, 1.0, 0.0);
 
-	draw_car(0, 0, 0, 1);
-	//draw_lamp(0, 0, 0, 1, 180);
+	draw_car(car.x, car.y, car.z, car.get_ang(),1);
+	//draw_lamp(0, 0, 0, 2, 180);
 	glPopMatrix();
 	glFlush();
 	glutSwapBuffers();
@@ -134,15 +143,19 @@ void keyboard(unsigned char key, int x, int y)
 	{
 	case 'a':	// A
 		yrotate -= 5;
+		car.Turn(-5);
 		break;
 	case 'd':	// D
 		yrotate += 5;
+		car.Turn(5);
 		break;
 	case 'w':	// W
-		xrotate += 5;
+		//xrotate += 5;
+		car.Move(0.3);
 		break;
 	case 's':	// S
-		xrotate -= 5;
+		//xrotate -= 5;
+		car.Move(-0.3);
 		break;
 	default:
 		break;
