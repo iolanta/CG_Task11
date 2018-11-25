@@ -1,8 +1,11 @@
 #include <GL/glut.h>
 #include <SOIL2.h>
-
+#include <cmath>
+#include "Lorry.h"
 int w = 0, h = 0;
 GLfloat xrotate, yrotate, zrotate;
+
+Lorry car;
 
 void Init(void)
 {
@@ -30,29 +33,32 @@ void draw_light(GLfloat x, GLfloat y, GLfloat z, int size, GLfloat of_x, GLfloat
 	glutSolidSphere(size * 0.03, size * 10, size * 10);
 	glPopMatrix();
 }
-void draw_car(GLfloat x, GLfloat y, GLfloat z, int size) {
+void draw_car(GLfloat x, GLfloat y, GLfloat z,GLdouble turn, int size) {
 	glPushMatrix();
+	
 	glTranslatef(x, y, z);
+	glRotatef(turn, 0, 0, 1);
+	glRotatef(90, 1, 0, 0);
 	glColor3f(1.0f, 0, 0);
 	glutSolidCube(size * 0.3f);
 
 	glPushMatrix();
 	glColor3f(0, 0, 1.0f);
-	glTranslatef(size * (x + 0.25), size * (y - 0.05), size * z);
+	glTranslatef(size * ( + 0.25), size * ( - 0.05),0);
 	glutSolidCube(size * 0.2f);
 	glPopMatrix();
 
 	glColor3f(0.0f, 0.0f, 0.0f);
-	draw_wheel(x, y, z, size, 0.25, -0.15, 0.07);
-	draw_wheel(x, y, z, size, 0.25, -0.15, -0.07);
-	draw_wheel(x, y, z, size, -0.08, -0.15, -0.07);
-	draw_wheel(x, y, z, size, -0.08, -0.15, 0.07);
+	draw_wheel(0, 0, 0, size, 0.25, -0.15, 0.07);
+	draw_wheel(0, 0, 0, size, 0.25, -0.15, -0.07);
+	draw_wheel(0, 0, 0, size, -0.08, -0.15, -0.07);
+	draw_wheel(0, 0, 0, size, -0.08, -0.15, 0.07);
 
 	glColor3f(1.0f, 1.0f, 0.0f);
-	draw_light(x, y, z, size, 0.35, -0.1, -0.07);
-	draw_light(x, y, z, size, 0.35, -0.1, 0.07);
-	draw_light(x, y, z, size, -0.15, -0.1, -0.09);
-	draw_light(x, y, z, size, -0.15, -0.1, 0.09);
+	draw_light(0, 0, 0, size, 0.35, -0.1, -0.07);
+	draw_light(0, 0, 0, size, 0.35, -0.1, 0.07);
+	draw_light(0, 0, 0, size, -0.15, -0.1, -0.09);
+	draw_light(0, 0, 0, size, -0.15, -0.1, 0.09);
 	glPopMatrix();
 }
 
@@ -102,8 +108,8 @@ void Update(void) {
 	glRotatef(xrotate, 1.0, 0.0, 0.0);
 	glRotatef(yrotate, 0.0, 1.0, 0.0);
 
-	//draw_car(0, 0, 0, 1);
-	draw_lamp(0, 0, 0, 2, 180);
+	draw_car(car.x, car.y, car.z, car.get_ang(),1);
+	//draw_lamp(0, 0, 0, 2, 180);
 	glPopMatrix();
 	glFlush();
 	glutSwapBuffers();
@@ -115,15 +121,19 @@ void keyboard(unsigned char key, int x, int y)
 	{
 	case 'a':	// A
 		yrotate -= 5;
+		car.Turn(-5);
 		break;
 	case 'd':	// D
 		yrotate += 5;
+		car.Turn(5);
 		break;
 	case 'w':	// W
-		xrotate += 5;
+		//xrotate += 5;
+		car.Move(0.3);
 		break;
 	case 's':	// S
-		xrotate -= 5;
+		//xrotate -= 5;
+		car.Move(-0.3);
 		break;
 	default:
 		break;
