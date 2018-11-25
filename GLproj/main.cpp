@@ -7,6 +7,15 @@ GLfloat xrotate, yrotate, zrotate;
 void Init(void)
 {
 	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+	// рассчет освещения
+	glEnable(GL_LIGHTING);
+
+	// двухсторонний расчет освещения
+	glLightModelf(GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE);
+
+	// автоматическое приведение нормалей к
+	// единичной длине
+	glEnable(GL_NORMALIZE);
 }
 
 void Reshape(int x, int y)
@@ -50,6 +59,16 @@ void draw_car(GLfloat x, GLfloat y, GLfloat z, int size) {
 
 	glColor3f(1.0f, 1.0f, 0.0f);
 	draw_light(x, y, z, size, 0.35, -0.1, -0.07);
+
+	GLfloat light3_diffuse[] = { 0.4, 0.7, 0.2 };
+	GLfloat light3_position[] = { size * (x + 0.35), size * (y - 0.1), size * (z - 0.07), 1.0 };
+	GLfloat light3_spot_direction[] = { 1.0, 1.0, 0.0 };
+	glEnable(GL_LIGHT0);
+	//glLightfv(GL_LIGHT0, GL_DIFFUSE, light3_diffuse);
+	glLightfv(GL_LIGHT0, GL_POSITION, light3_position);
+	//glLightf(GL_LIGHT0, GL_SPOT_CUTOFF, 30);
+	glLightfv(GL_LIGHT0, GL_SPOT_DIRECTION, light3_spot_direction);
+
 	draw_light(x, y, z, size, 0.35, -0.1, 0.07);
 	draw_light(x, y, z, size, -0.15, -0.1, -0.09);
 	draw_light(x, y, z, size, -0.15, -0.1, 0.09);
@@ -102,8 +121,8 @@ void Update(void) {
 	glRotatef(xrotate, 1.0, 0.0, 0.0);
 	glRotatef(yrotate, 0.0, 1.0, 0.0);
 
-	//draw_car(0, 0, 0, 1);
-	draw_lamp(0, 0, 0, 2, 180);
+	draw_car(0, 0, 0, 1);
+	//draw_lamp(0, 0, 0, 1, 180);
 	glPopMatrix();
 	glFlush();
 	glutSwapBuffers();
