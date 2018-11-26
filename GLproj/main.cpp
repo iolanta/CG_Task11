@@ -47,21 +47,24 @@ void draw_light(GLfloat x, GLfloat y, GLfloat z, int size, GLfloat of_x, GLfloat
 	GLfloat px = size * (x + of_x), py = size * (y + of_y), pz = size * (z + of_z);
 	glPushMatrix();
 	glTranslatef(px, py, pz);
-	
-	//GLfloat material_diffuse[] = { 1.0, 1.0, 1.0, 1.0 };
-	//glMaterialfv(GL_FRONT, GL_DIFFUSE, material_diffuse);
-	GLfloat light_diffuse[] = { 1.0, 1.0, 1.0, 1.0 };
-	GLfloat light_position[] = { 1,0,0 };
-	GLfloat light_spot_direction[] = { 0, 1, 0 };
-	//GLfloat light_ambient[] = { 1.0, 1.0, 0.0, 1.0 };
+
+	GLfloat light_diffuse[] = { 0.5, 0.5, 0.5, 1};
+	GLfloat light_position[] = { 0.1,0,0,1 };
+	GLfloat light_spot_direction[] = { dir * 1, 0, 0 };
+	GLfloat light_ambient[] = { 1.0, 1.0, 0.4, 1.0 };
+
 	glEnable(num_light);
-	//glLightfv(num_light, GL_AMBIENT, light_ambient);
-	glLightfv(num_light, GL_DIFFUSE, light_diffuse);
+	glLightfv(num_light, GL_AMBIENT, light_ambient);
+	glLightfv(num_light, GL_DIFFUSE, light_ambient);
 	glLightfv(num_light, GL_POSITION, light_position);
-	glLightf(num_light, GL_SPOT_CUTOFF, 180);
+	glLightfv(num_light, GL_SPECULAR, light_diffuse);
+	glLightf(num_light, GL_SPOT_CUTOFF, 40);
+
 	glLightfv(num_light, GL_SPOT_DIRECTION, light_spot_direction);
+	//glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION,light_ambient);
 	glutSolidSphere(size * 0.03, size * 10, size * 10);
 	glPopMatrix();
+
 }
 void draw_car(GLfloat x, GLfloat y, GLfloat z,GLdouble turn, int size) {
 	glPushMatrix();
@@ -131,16 +134,18 @@ void draw_lamp(GLfloat x, GLfloat y, GLfloat z, int size, GLfloat angle) {
 }
 
 void draw_ground() {
+	GLfloat light_position[] = { 1,1,1,1 };
+	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, light_position);
 	glColor3f(0.0f, 0.0f, 0.5f);
 	glNormal3f(0, 0, 1);
 	glBegin(GL_QUADS);
-	for (int x = -20; x < 20; ++x){
-		for (int y = -20; y < 20; ++y) {
+	for (GLfloat x = -10; x < 10; x += 0.05){
+		for (GLfloat y = -10; y < 10; y += 0.05) {
 
 			glVertex3f(x, y, 0.0f);
-			glVertex3f(x, y - 1, 0.0f);
-			glVertex3f(x - 1, y - 1, 0.0f);
-			glVertex3f(x - 1, y, 0.0f);
+			glVertex3f(x, y - 0.5, 0.0f);
+			glVertex3f(x - 0.5, y - 0.5, 0.0f);
+			glVertex3f(x - 0.5, y, 0.0f);
 		}
 	}
 	glEnd();
@@ -153,10 +158,10 @@ void set_cam() {
 	GLfloat params[4] = {0.1,0.1,0.1,0 };
 	GLfloat params1[4] = { 0.0,0.0,0.0,0 };
 	GLfloat params2[4] = { 0.5,0.5,0.5,1 };
-	glEnable(GL_LIGHT0);
-	glLightfv(GL_LIGHT0, GL_AMBIENT, params);
-	glLightfv(GL_LIGHT0, GL_DIFFUSE, params1);
-	glLightfv(GL_LIGHT0, GL_SPECULAR, params2);
+	//glEnable(GL_LIGHT0);
+	//glLightfv(GL_LIGHT0, GL_AMBIENT, params1);
+	//glLightfv(GL_LIGHT0, GL_DIFFUSE, params1);
+	//glLightfv(GL_LIGHT0, GL_SPECULAR, params2);
 	//glLightfv(GL_LIGHT0, GL_AMBIENT, params);
 
 	GLdouble up[3]{-3.0, 0 ,3.0 };
