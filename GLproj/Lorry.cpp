@@ -12,6 +12,7 @@ void Lorry::Move(GLdouble d)
 {
 	x += std::cos(angle)*d;
 	y += std::sin(angle)*d;
+	moving_back = d < 0;
 }
 
 void Lorry::Turn(GLdouble ang)
@@ -31,6 +32,7 @@ Lorry::Lorry()
 	y = 0;
 	z = 0;
 	angle = 0;
+	moving_back = false;
 }
 
 

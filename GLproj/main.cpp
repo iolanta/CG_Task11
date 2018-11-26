@@ -312,7 +312,7 @@ void specialKeys(int key, int x, int y) {
 int main(int argc, char **argv)
 {
 	glutInit(&argc, argv);
-	SOIL_load_OGL_texture("C:\\User\\je_day\\Desktop\\text.jpg", 0, 0, SOIL_FLAG_INVERT_Y);
+	
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
 	glutInitWindowPosition(100, 100);
 	glutInitWindowSize(800, 600);

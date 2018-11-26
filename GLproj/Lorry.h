@@ -5,6 +5,7 @@ class Lorry
 	const GLdouble pid = 3.14159265359/180;
 	const GLdouble pi2 = 2*3.14159265359;
 public:
+	bool moving_back;
 	GLdouble x;
 	GLdouble y;
 	GLdouble z;
