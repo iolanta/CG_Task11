@@ -6,6 +6,7 @@
 
 int w = 0, h = 0;
 GLfloat xrotate, yrotate, zrotate;
+bool front_lights = false, back_lights = false;
 
 Lorry car;
 
@@ -86,9 +87,8 @@ void draw_light(GLfloat x, GLfloat y, GLfloat z, int size, GLfloat of_x, GLfloat
 		glLightf(num_light, GL_LINEAR_ATTENUATION, 0.5);
 		glLightf(num_light, GL_QUADRATIC_ATTENUATION, 1.5);
 	}
-	GLfloat light_ambient[] = { 0, 0, 0, 1};
+	GLfloat light_ambient[] = { 0, 0, 0, 1 };
 
-	glEnable(num_light);
 	glLightfv(num_light, GL_AMBIENT, light_ambient);
 	glLightfv(num_light, GL_DIFFUSE, light_diffuse);
 	glLightfv(num_light, GL_POSITION, light_position);
@@ -277,6 +277,37 @@ void keyboard(unsigned char key, int x, int y)
 	glutPostRedisplay();
 }
 
+void specialKeys(int key, int x, int y) {
+	switch (key)
+	{ 
+	case GLUT_KEY_PAGE_UP:
+		if(front_lights){
+			glDisable(GL_LIGHT1);
+			glDisable(GL_LIGHT2);
+			front_lights = false;
+		}
+		else {
+			glEnable(GL_LIGHT1);
+			glEnable(GL_LIGHT2);
+			front_lights = true;
+		}
+		break;
+	case GLUT_KEY_PAGE_DOWN:
+		if (back_lights) {
+			glDisable(GL_LIGHT3);
+			glDisable(GL_LIGHT4);
+			back_lights = false;
+		}
+		else {
+			glEnable(GL_LIGHT3);
+			glEnable(GL_LIGHT4);
+			back_lights = true;
+		}
+		break;
+	default:
+		break;
+	}
+}
 
 int main(int argc, char **argv)
 {
@@ -291,6 +322,8 @@ int main(int argc, char **argv)
 	glutDisplayFunc(Update);
 	glutReshapeFunc(Reshape);
 	glutKeyboardFunc(keyboard);
+	glutSpecialFunc(specialKeys);
+
 	Init();
 	glutMainLoop();
 	return 0;         
