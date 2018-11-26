@@ -255,11 +255,11 @@ void keyboard(unsigned char key, int x, int y)
 	{
 	case 'a':	// A
 		
-		car.Turn(-5);
+		car.Turn(5);
 		break;
 	case 'd':	// D
 		
-		car.Turn(5);
+		car.Turn(-5);
 		break;
 	case 'w':	// W
 		
@@ -307,6 +307,8 @@ void specialKeys(int key, int x, int y) {
 	default:
 		break;
 	}
+
+	glutPostRedisplay();
 }
 
 int main(int argc, char **argv)
