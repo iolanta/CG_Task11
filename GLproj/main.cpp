@@ -16,7 +16,8 @@ void Init(void)
 	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 	// рассчет освещения
 	glEnable(GL_LIGHTING);
-
+	//glColorMaterial(GL_FRONT, GL_DIFFUSE);
+	//glEnable(GL_COLOR_MATERIAL);
 	// автоматическое приведение нормалей к
 	// единичной длине
 	glEnable(GL_NORMALIZE);
@@ -134,8 +135,8 @@ void draw_car(GLfloat x, GLfloat y, GLfloat z,GLdouble turn, int size) {
 
 void draw_lamp(GLfloat x, GLfloat y, GLfloat z, int size, GLfloat angle) {
 	glPushMatrix();
-	//glTranslatef(x, y, z);
-	glRotatef(angle, 0.0, 1.0, 0.0);
+	glTranslatef(x, y, z);
+	glRotatef(angle, 0.0, 0.0, 1);
 
 	glColor3f(0.0f, 0.0f, 0.0f);
 	GLUquadricObj *quadObj = gluNewQuadric();
@@ -147,7 +148,7 @@ void draw_lamp(GLfloat x, GLfloat y, GLfloat z, int size, GLfloat angle) {
 	glPopMatrix();
 
 	glPushMatrix();
-	glTranslatef(size * (x + 0.035), size * (y + 0.03), size * z);
+	glTranslatef(size * (0.035), size * (0.03),0);
 	glRotatef(90, 1.0, 0.0, 0.0);
 	glRotatef(-45, 0.0, 1.0, 0.0);
 	gluCylinder(quadObj, size * 0.01, size * 0.01, size * 0.05, size * 15, size * 15);
@@ -155,14 +156,14 @@ void draw_lamp(GLfloat x, GLfloat y, GLfloat z, int size, GLfloat angle) {
 
 	glColor3f(1.0f, 1.0f, 0.0f);
 	glPushMatrix();
-	glTranslatef(size * (x + 0.11), size * (y + 0.025), size * z);
+	glTranslatef(size * ( 0.11), size * ( 0.025), 0);
 	glRotatef(-90, 0.0, 1.0, 0.0);
 	gluCylinder(quadObj, size * 0.01, size * 0.01, size * 0.08, size * 15, size * 15);
 	glPopMatrix();
 
 	glColor3f(0.0f, 0.0f, 0.0f);
 	glPushMatrix();
-	glTranslatef(size * (x + 0.12), size * (y + 0.025), size * z);
+	glTranslatef(size * (0.12), size * ( 0.025), 0 );
 	glRotatef(-90, 0.0, 1.0, 0.0);
 	gluCylinder(quadObj, size * 0.01, size * 0.01, size * 0.01, size * 15, size * 15);
 	glPopMatrix();
@@ -170,42 +171,66 @@ void draw_lamp(GLfloat x, GLfloat y, GLfloat z, int size, GLfloat angle) {
 	glPopMatrix();
 }
 
-void draw_ground() {
+void draw_ground(GLdouble x0, GLdouble x1, GLdouble y0, GLdouble y1, int divx, int divy ) {
 	GLfloat light_position[] = { 1,1,1,1 };
 	GLfloat material_diffuse[] = { 1, 1, 1, 1 };
 	GLfloat material_emission[] = { 0, 0, 0, 1 };
 	glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, material_diffuse);
 	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, light_position);
 	glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, material_emission);
-	glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 50);
+	glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 10);
 
 	glColor3f(0.0f, 0.0f, 0.0f);
 	glNormal3f(0, 0, 1);
-	glBegin(GL_QUADS);
-	for (GLfloat x = -10; x < 10; x += 0.05){
-		for (GLfloat y = -10; y < 10; y += 0.05) {
+	
+	
+	GLdouble stepx = (x1 - x0) / divx;
+	GLdouble stepy = (y1 - y0) / divy;
 
+	GLdouble x, y;
+	y = y0;
+	x = x0;
+	glBegin(GL_QUADS);
+	for (size_t i = 0; i < divx; i++)
+	{
+		y = y0;
+		for (size_t j = 0; j < divy; j++)
+		{
 			glVertex3f(x, y, 0.0f);
-			glVertex3f(x, y - 0.5, 0.0f);
-			glVertex3f(x - 0.5, y - 0.5, 0.0f);
-			glVertex3f(x - 0.5, y, 0.0f);
+			glVertex3f(x, y - stepy, 0.0f);
+			glVertex3f(x - stepx, y - stepy, 0.0f);
+			glVertex3f(x - stepx, y, 0.0f);
+			y += stepy;
 		}
+		x += stepx;
 	}
 	glEnd();
 
+}
+
+void cross(GLdouble a[], GLdouble b[], GLdouble res[]) {
+	res[0] = a[1] * b[2] - a[2] * b[1];
+	res[1] = a[2] * b[0] - a[0] * b[2];
+	res[2] = a[0] * b[1] - a[1] * b[0];
+
+}
+
+void norm(GLdouble a[]) {
+	GLdouble len = std::sqrt(a[0] + a[1] + a[2]);
+	for (size_t i = 0; i < 3; i++)
+		a[i] /= len;
 }
 
 void set_cam() {
 	
 	glLoadIdentity();
 
-	GLfloat light_diffuse[] = { 1, 1, 1, 1 };
-	GLfloat light_position[] = {1,1,1,0 };
-	//GLfloat light_spot_direction[] = { 0, 0, -1 };
+	GLfloat light_diffuse[] = { 0.1, 0.1, 0.1, 1 };
+	GLfloat light_position[] = {0,0,0,1 };
 	GLfloat light_ambient[] = { 0, 0, 0, 1 };
-	GLfloat light_specular[] = { 1, 1, 1, 1 };
+	GLfloat light_specular[] = { 0.1, 0.1, 0.1, 1 };
 
-	//glEnable(GL_LIGHT0);
+	glEnable(GL_LIGHT0);
 	glLightfv(GL_LIGHT0, GL_AMBIENT, light_ambient);
 	glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse);
 	glLightfv(GL_LIGHT0, GL_POSITION, light_position);
@@ -222,16 +247,23 @@ void set_cam() {
 	glLightfv(GL_LIGHT0, GL_SPECULAR, params2);
 	glLightfv(GL_LIGHT0, GL_AMBIENT, params);*/
 
-	GLdouble up[3]{-3.0, 0 ,3.0 };
-	GLdouble len = std::sqrt(up[0] + up[1] + up[2]);
-	for (size_t i = 0; i < 3; i++)
-		up[i] /= len;
-	//GLdouble right[3]{ -up[2], 0, up[0] }; 
-	GLdouble newup[3]{ -up[0] * up[1], up[0] * up[0] + up[2] * up[2], -up[2] * up[1] };
+
 	
-	//gluLookAt(car.x - 3.0, 0, car.z+3.0, car.x, car.y, car.z,newup[0], newup[1] ,newup[2]);
-	//gluLookAt(car.x-2*std::cos(car.angle), car.y -2 * std::sin(car.angle), 2, car.x, car.y, car.z,0, 0, 1);
-	gluLookAt(car.x, car.y, 4, car.x, car.y, car.z, 1, 0, 0);
+	GLdouble cam_offset = -2;
+
+
+	GLdouble fwd[3]{ -cam_offset * std::cos(car.angle),   -cam_offset * std::sin(car.angle) ,  -cam_offset };
+	GLdouble tmp[3]{ 0,0,1 };
+	GLdouble right[3], up[3];
+	norm(fwd);
+	norm(tmp);
+	cross(tmp, fwd,right);
+	cross(fwd, right, up);
+	
+	
+
+	gluLookAt(car.x - cam_offset *std::cos(car.angle), car.y - cam_offset * std::sin(car.angle), car.z - cam_offset, car.x, car.y, car.z, up[0], up[1], up[2]);
+	//gluLookAt(car.x, car.y, 4, car.x, car.y, car.z, 1, 0, 0);
 }
 
 
@@ -241,7 +273,7 @@ void Update(void) {
 	
 	set_cam();
 	glPushMatrix();
-	draw_ground();
+	draw_ground(-10,10,-10,10,100,100);
 	draw_car(car.x, car.y, car.z, car.get_ang(),1);
 	
 	glPopMatrix();
