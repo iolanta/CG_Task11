@@ -10,16 +10,28 @@ bool front_lights = false, back_lights = false;
 
 Lorry car;
 
+GLuint texture_road;
+GLuint texture_car;
+
+void make_textures()
+{
+	texture_road = SOIL_load_OGL_texture("road.jpg", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_NTSC_SAFE_RGB | SOIL_FLAG_MULTIPLY_ALPHA);
+	texture_car = SOIL_load_OGL_texture("car.jpg", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_NTSC_SAFE_RGB | SOIL_FLAG_MULTIPLY_ALPHA);
+}
+
+
 void Init(void)
 {
 	car.z += 1;
 	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 	// рассчет освещения
-	glEnable(GL_LIGHTING);
+//	glEnable(GL_LIGHTING);
 
 	// автоматическое приведение нормалей к
 	// единичной длине
 	glEnable(GL_NORMALIZE);
+
+	make_textures();
 }
 
 void Reshape(int x, int y)
@@ -103,19 +115,68 @@ void draw_light(GLfloat x, GLfloat y, GLfloat z, int size, GLfloat of_x, GLfloat
 	glPopMatrix();
 
 }
+
+void texturing_car(GLfloat size)
+{
+	glBindTexture(GL_TEXTURE_2D, texture_car);
+	glEnable(GL_TEXTURE_2D);
+	glBegin(GL_QUADS);
+
+	// Front 
+	glNormal3f(0, 0, 1); glTexCoord2f(0.0f, 0.0f); glVertex3f(-size, -size, size);  // Bottom Left
+	glNormal3f(0, 0, 1); glTexCoord2f(1.0f, 0.0f); glVertex3f(size, -size, size);  // Bottom Right 
+	glNormal3f(0, 0, 1); glTexCoord2f(1.0f, 1.0f); glVertex3f(size, size, size);  // Top Right 
+	glNormal3f(0, 0, 1); glTexCoord2f(0.0f, 1.0f); glVertex3f(-size, size, size);  // Top Left 
+
+	// Back 
+	glNormal3f(0, 0, -1); glTexCoord2f(1.0f, 0.0f); glVertex3f(-size, -size, -size);  // Bottom Right 
+	glNormal3f(0, 0, -1); glTexCoord2f(1.0f, 1.0f); glVertex3f(-size, size, -size);  // Top Right
+	glNormal3f(0, 0, -1); glTexCoord2f(0.0f, 1.0f); glVertex3f(size, size, -size);  // Top Left 
+	glNormal3f(0, 0, -1); glTexCoord2f(0.0f, 0.0f); glVertex3f(size, -size, -size);  // Bottom Left
+
+	 // Top 
+	glNormal3f(0, 1, 0); glTexCoord2f(0.0f, 1.0f); glVertex3f(-size, size, -size);  // Top Left 
+	glNormal3f(0, 1, 0); glTexCoord2f(0.0f, 0.0f); glVertex3f(-size, size, size);  // Bottom Left
+	glNormal3f(0, 1, 0); glTexCoord2f(1.0f, 0.0f); glVertex3f(size, size, size);  // Bottom Right 
+	glNormal3f(0, 1, 0); glTexCoord2f(1.0f, 1.0f); glVertex3f(size, size, -size);  // Top Right 
+
+	 // Bottom 
+	glNormal3f(0, -1, 0); glTexCoord2f(1.0f, 1.0f); glVertex3f(-size, -size, -size);  // Top Right 
+	glNormal3f(0, -1, 0); glTexCoord2f(0.0f, 1.0f); glVertex3f(size, -size, -size);  // Top Left 
+	glNormal3f(0, -1, 0); glTexCoord2f(0.0f, 0.0f); glVertex3f(size, -size, size);  // Bottom Left 
+	glNormal3f(0, -1, 0); glTexCoord2f(1.0f, 0.0f); glVertex3f(-size, -size, size);  // Bottom Right 
+
+	// Right 
+	glNormal3f(1, 0, 0); glTexCoord2f(1.0f, 0.0f); glVertex3f(size, -size, -size);  // Bottom Right 
+	glNormal3f(1, 0, 0); glTexCoord2f(1.0f, 1.0f); glVertex3f(size, size, -size);  // Top Right
+	glNormal3f(1, 0, 0); glTexCoord2f(0.0f, 1.0f); glVertex3f(size, size, size);  // Top Left 
+	glNormal3f(1, 0, 0); glTexCoord2f(0.0f, 0.0f); glVertex3f(size, -size, size);  // Bottom Left  
+
+	// Left 
+	glNormal3f(-1, 0, 0); glTexCoord2f(0.0f, 0.0f); glVertex3f(-size, -size, -size);  // Bottom Left 
+	glNormal3f(-1, 0, 0); glTexCoord2f(1.0f, 0.0f); glVertex3f(-size, -size, size);  // Bottom Right 
+	glNormal3f(-1, 0, 0); glTexCoord2f(1.0f, 1.0f); glVertex3f(-size, size, size);  // Top Right 
+	glNormal3f(-1, 0, 0); glTexCoord2f(0.0f, 1.0f); glVertex3f(-size, size, -size);  // Top Left 
+
+	glEnd();
+	glDisable(GL_TEXTURE_2D);
+}
+
 void draw_car(GLfloat x, GLfloat y, GLfloat z,GLdouble turn, int size) {
 	glPushMatrix();
 	
 	glTranslatef(x, y, z);
 	glRotatef(turn, 0, 0, 1);
 	glRotatef(90, 1, 0, 0);
-	glColor3f(1.0f, 0, 0);
+	glColor3f(1.0f, 1.0f, 1.0f);
 	glutSolidCube(size * 0.3f);
+	texturing_car(size * 0.3f);
 
 	glPushMatrix();
-	glColor3f(0, 0, 1.0f);
+	glColor3f(1.0f, 1.0f, 1.0f);
 	glTranslatef(size * ( + 0.25), size * ( - 0.05),0);
 	glutSolidCube(size * 0.2f);
+	texturing_car(size * 0.2f);
 	glPopMatrix();
 
 	glColor3f(0.0f, 0.0f, 0.0f);
@@ -179,20 +240,26 @@ void draw_ground() {
 	glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, material_emission);
 	glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 50);
 
-	glColor3f(0.0f, 0.0f, 0.0f);
+	glColor3f(1.0f, 1.0f, 1.0f);
 	glNormal3f(0, 0, 1);
+
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, texture_road);
+
 	glBegin(GL_QUADS);
+
 	for (GLfloat x = -10; x < 10; x += 0.05){
 		for (GLfloat y = -10; y < 10; y += 0.05) {
 
-			glVertex3f(x, y, 0.0f);
-			glVertex3f(x, y - 0.5, 0.0f);
-			glVertex3f(x - 0.5, y - 0.5, 0.0f);
-			glVertex3f(x - 0.5, y, 0.0f);
+			glVertex3f(x, y, 0.0f); glTexCoord2d(x, y);
+			glVertex3f(x, y - 0.5, 0.0f); glTexCoord2d(x, y);
+			glVertex3f(x - 0.5, y - 0.5, 0.0f); glTexCoord2d(x, y);
+			glVertex3f(x - 0.5, y, 0.0f); glTexCoord2d(x, y);
 		}
 	}
 	glEnd();
 
+	glEnable(GL_TEXTURE_2D);
 }
 
 void set_cam() {
