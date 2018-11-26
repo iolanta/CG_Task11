@@ -27,9 +27,12 @@ void draw_wheel(GLfloat x, GLfloat y, GLfloat z, int size, GLfloat of_x, GLfloat
 	glPopMatrix();
 }
 
+
+
 void draw_light(GLfloat x, GLfloat y, GLfloat z, int size, GLfloat of_x, GLfloat of_y, GLfloat of_z) {
 	glPushMatrix();
 	glTranslatef(size * (x + of_x), size * (y + of_y), size * (z + of_z));
+	
 	glutSolidSphere(size * 0.03, size * 10, size * 10);
 	glPopMatrix();
 }
@@ -103,6 +106,7 @@ void draw_lamp(GLfloat x, GLfloat y, GLfloat z, int size, GLfloat angle) {
 void Update(void) {
 	glMatrixMode(GL_MODELVIEW);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	
 	glPushMatrix();
 
 	glRotatef(xrotate, 1.0, 0.0, 0.0);
