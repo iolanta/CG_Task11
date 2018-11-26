@@ -3,6 +3,7 @@
 #include <cmath>
 #include "Lorry.h"
 #include <utility>
+
 int w = 0, h = 0;
 GLfloat xrotate, yrotate, zrotate;
 
@@ -14,9 +15,6 @@ void Init(void)
 	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 	// рассчет освещения
 	glEnable(GL_LIGHTING);
-
-	// двухсторонний расчет освещения
-	glLightModelf(GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE);
 
 	// автоматическое приведение нормалей к
 	// единичной длине
@@ -43,25 +41,64 @@ void draw_wheel(GLfloat x, GLfloat y, GLfloat z, int size, GLfloat of_x, GLfloat
 }
 
 
-void draw_light(GLfloat x, GLfloat y, GLfloat z, int size, GLfloat of_x, GLfloat of_y, GLfloat of_z, GLenum num_light, int dir) {
+void draw_light(GLfloat x, GLfloat y, GLfloat z, int size, GLfloat of_x, GLfloat of_y, GLfloat of_z, GLenum num_light, bool dir) {
 	GLfloat px = size * (x + of_x), py = size * (y + of_y), pz = size * (z + of_z);
 	glPushMatrix();
 	glTranslatef(px, py, pz);
-
-	GLfloat light_diffuse[] = { 0.5, 0.5, 0.5, 1};
-	GLfloat light_position[] = { 0.1,0,0,1 };
-	GLfloat light_spot_direction[] = { dir * 1, 0, 0 };
-	GLfloat light_ambient[] = { 1.0, 1.0, 0.4, 1.0 };
+	GLfloat light_diffuse[4];
+	GLfloat light_position[4];
+	GLfloat light_spot_direction[3];
+	GLfloat color_light[4];
+	if(dir){
+		light_diffuse[0] = 1;
+		light_diffuse[1] = 1;
+		light_diffuse[2] = 0;
+		light_diffuse[3] = 1;
+		light_position[0] = 0.01;
+		light_position[1] = 0;
+		light_position[2] = 0;
+		light_position[3] = 1;
+		light_spot_direction[0] = 1;
+		light_spot_direction[1] = 0;
+		light_spot_direction[2] = 0;
+		color_light[0] = 1; 
+		color_light[1] = 1;
+		color_light[2] = 0.4;
+		color_light[3] = 1;
+		glLightf(num_light, GL_LINEAR_ATTENUATION, 0.5);
+	}
+	else {
+		light_diffuse[0] = 1;
+		light_diffuse[1] = 0;
+		light_diffuse[2] = 0;
+		light_diffuse[3] = 1;
+		light_position[0] = -0.01;
+		light_position[1] = 0;
+		light_position[2] = 0;
+		light_position[3] = 1;
+		light_spot_direction[0] = -1;
+		light_spot_direction[1] = 0;
+		light_spot_direction[2] = 0;
+		color_light[0] = 1;
+		color_light[1] = 0;
+		color_light[2] = 0;
+		color_light[3] = 1;
+		glLightf(num_light, GL_LINEAR_ATTENUATION, 0.5);
+		glLightf(num_light, GL_QUADRATIC_ATTENUATION, 1.5);
+	}
+	GLfloat light_ambient[] = { 0, 0, 0, 1};
 
 	glEnable(num_light);
 	glLightfv(num_light, GL_AMBIENT, light_ambient);
-	glLightfv(num_light, GL_DIFFUSE, light_ambient);
+	glLightfv(num_light, GL_DIFFUSE, light_diffuse);
 	glLightfv(num_light, GL_POSITION, light_position);
 	glLightfv(num_light, GL_SPECULAR, light_diffuse);
-	glLightf(num_light, GL_SPOT_CUTOFF, 40);
-
+	glLightf(num_light, GL_SPOT_CUTOFF, 50);
+	glLightf(num_light, GL_SPOT_EXPONENT, 5); 
 	glLightfv(num_light, GL_SPOT_DIRECTION, light_spot_direction);
-	//glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION,light_ambient);
+	glLightf(num_light, GL_CONSTANT_ATTENUATION, 3);
+
+	glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, color_light);
 	glutSolidSphere(size * 0.03, size * 10, size * 10);
 	glPopMatrix();
 
@@ -88,10 +125,10 @@ void draw_car(GLfloat x, GLfloat y, GLfloat z,GLdouble turn, int size) {
 	draw_wheel(0, 0, 0, size, -0.08, -0.15, 0.07);
 
 	glColor3f(1.0f, 1.0f, 0.0f);
-	draw_light(0, 0, 0, size, 0.35, -0.1, -0.07, GL_LIGHT1, 1);
-	draw_light(0, 0, 0, size, 0.35, -0.1, 0.07, GL_LIGHT2, 1);
-	draw_light(0, 0, 0, size, -0.15, -0.1, -0.09, GL_LIGHT3, -1);
-	draw_light(0, 0, 0, size, -0.15, -0.1, 0.09, GL_LIGHT4, -1); 
+	draw_light(0, 0, 0, size, 0.35, -0.1, -0.07, GL_LIGHT1, true);
+	draw_light(0, 0, 0, size, 0.35, -0.1, 0.07, GL_LIGHT2, true);
+	draw_light(0, 0, 0, size, -0.15, -0.1, -0.09, GL_LIGHT3, false);
+	draw_light(0, 0, 0, size, -0.15, -0.1, 0.09, GL_LIGHT4, false); 
 	glPopMatrix();
 }
 
@@ -135,8 +172,14 @@ void draw_lamp(GLfloat x, GLfloat y, GLfloat z, int size, GLfloat angle) {
 
 void draw_ground() {
 	GLfloat light_position[] = { 1,1,1,1 };
+	GLfloat material_diffuse[] = { 1, 1, 1, 1 };
+	GLfloat material_emission[] = { 0, 0, 0, 1 };
+	glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, material_diffuse);
 	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, light_position);
-	glColor3f(0.0f, 0.0f, 0.5f);
+	glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, material_emission);
+	glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 50);
+
+	glColor3f(0.0f, 0.0f, 0.0f);
 	glNormal3f(0, 0, 1);
 	glBegin(GL_QUADS);
 	for (GLfloat x = -10; x < 10; x += 0.05){
@@ -155,14 +198,29 @@ void draw_ground() {
 void set_cam() {
 	
 	glLoadIdentity();
-	GLfloat params[4] = {0.1,0.1,0.1,0 };
+
+	GLfloat light_diffuse[] = { 1, 1, 1, 1 };
+	GLfloat light_position[] = {1,1,1,0 };
+	//GLfloat light_spot_direction[] = { 0, 0, -1 };
+	GLfloat light_ambient[] = { 0, 0, 0, 1 };
+	GLfloat light_specular[] = { 1, 1, 1, 1 };
+
+	//glEnable(GL_LIGHT0);
+	glLightfv(GL_LIGHT0, GL_AMBIENT, light_ambient);
+	glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse);
+	glLightfv(GL_LIGHT0, GL_POSITION, light_position);
+	glLightfv(GL_LIGHT0, GL_SPECULAR, light_specular);
+	//glLightf(GL_LIGHT0, GL_SPOT_CUTOFF, 40);
+	//glLightf(GL_LIGHT0, GL_SPOT_EXPONENT, 10);
+	//glLightfv(GL_LIGHT0, GL_SPOT_DIRECTION, light_spot_direction);
+
+	/*GLfloat params[4] = {0,0,0,1};
 	GLfloat params1[4] = { 0.0,0.0,0.0,0 };
 	GLfloat params2[4] = { 0.5,0.5,0.5,1 };
-	//glEnable(GL_LIGHT0);
-	//glLightfv(GL_LIGHT0, GL_AMBIENT, params1);
-	//glLightfv(GL_LIGHT0, GL_DIFFUSE, params1);
-	//glLightfv(GL_LIGHT0, GL_SPECULAR, params2);
-	//glLightfv(GL_LIGHT0, GL_AMBIENT, params);
+	glEnable(GL_LIGHT0);
+	glLightfv(GL_LIGHT0, GL_DIFFUSE, params1);
+	glLightfv(GL_LIGHT0, GL_SPECULAR, params2);
+	glLightfv(GL_LIGHT0, GL_AMBIENT, params);*/
 
 	GLdouble up[3]{-3.0, 0 ,3.0 };
 	GLdouble len = std::sqrt(up[0] + up[1] + up[2]);
