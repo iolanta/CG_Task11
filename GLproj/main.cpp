@@ -13,7 +13,7 @@ void Init(void)
 	car.z += 1;
 	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 	// рассчет освещения
-	//glEnable(GL_LIGHTING);
+	glEnable(GL_LIGHTING);
 
 	// двухсторонний расчет освещения
 	glLightModelf(GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE);
@@ -47,16 +47,18 @@ void draw_light(GLfloat x, GLfloat y, GLfloat z, int size, GLfloat of_x, GLfloat
 	GLfloat px = size * (x + of_x), py = size * (y + of_y), pz = size * (z + of_z);
 	glPushMatrix();
 	glTranslatef(px, py, pz);
-
-	GLfloat light_diffuse[] = { 0.5, 0.5, 0.5 };
+	
+	//GLfloat material_diffuse[] = { 1.0, 1.0, 1.0, 1.0 };
+	//glMaterialfv(GL_FRONT, GL_DIFFUSE, material_diffuse);
+	GLfloat light_diffuse[] = { 1.0, 1.0, 1.0, 1.0 };
 	GLfloat light_position[] = { 1,0,0 };
 	GLfloat light_spot_direction[] = { 0, 1, 0 };
-	GLfloat light_ambient[] = { 0.1, 0.1, 0.1 };
-	//glEnable(num_light);
-	glLightfv(num_light, GL_AMBIENT, light_ambient);
+	//GLfloat light_ambient[] = { 1.0, 1.0, 0.0, 1.0 };
+	glEnable(num_light);
+	//glLightfv(num_light, GL_AMBIENT, light_ambient);
 	glLightfv(num_light, GL_DIFFUSE, light_diffuse);
 	glLightfv(num_light, GL_POSITION, light_position);
-	glLightf(num_light, GL_SPOT_CUTOFF, 30);
+	glLightf(num_light, GL_SPOT_CUTOFF, 180);
 	glLightfv(num_light, GL_SPOT_DIRECTION, light_spot_direction);
 	glutSolidSphere(size * 0.03, size * 10, size * 10);
 	glPopMatrix();
@@ -132,10 +134,15 @@ void draw_ground() {
 	glColor3f(0.0f, 0.0f, 0.5f);
 	glNormal3f(0, 0, 1);
 	glBegin(GL_QUADS);
-	glVertex3f(-20, -20, 0.0f);
-	glVertex3f(-20, 20, 0.0f);
-	glVertex3f(20, 20, 0.0f);
-	glVertex3f(20, -20, 0.0f);
+	for (int x = -20; x < 20; ++x){
+		for (int y = -20; y < 20; ++y) {
+
+			glVertex3f(x, y, 0.0f);
+			glVertex3f(x, y - 1, 0.0f);
+			glVertex3f(x - 1, y - 1, 0.0f);
+			glVertex3f(x - 1, y, 0.0f);
+		}
+	}
 	glEnd();
 
 }
