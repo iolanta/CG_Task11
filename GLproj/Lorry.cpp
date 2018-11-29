@@ -91,7 +91,7 @@ Lorry::Lorry()
 
 	cam_xangle = 0;
 	cam_zangle = 45*pid;
-	cam_dist = 2;
+	cam_dist = 1;
 	
 
 }
