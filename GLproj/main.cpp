@@ -3,6 +3,7 @@
 #include <cmath>
 #include "Lorry.h"
 #include <utility>
+#include <iostream>
 
 int w = 0, h = 0;
 GLfloat xrotate, yrotate, zrotate;
@@ -51,8 +52,10 @@ void Reshape(int x, int y)
 	w = x;
 	h = y;
 
+	glViewport(0, 0, w, h);
 	glMatrixMode(GL_PROJECTION);
-	gluPerspective(90, (GLdouble)w / h, 0.1, 10);
+	glLoadIdentity();
+	gluPerspective(90, (GLdouble)w / h, 0.1, 50);
 
 }
 
@@ -92,7 +95,7 @@ void draw_light(GLfloat x, GLfloat y, GLfloat z, int size, GLfloat of_x, GLfloat
 		glMaterialfv(GL_FRONT, GL_EMISSION, color_light);
 	}
 	else {
-		light_diffuse[0] = 0.5;
+		light_diffuse[0] = 1;
 		light_diffuse[1] = 0;
 		light_diffuse[2] = 0;
 		light_diffuse[3] = 1;
@@ -101,14 +104,14 @@ void draw_light(GLfloat x, GLfloat y, GLfloat z, int size, GLfloat of_x, GLfloat
 		light_position[2] = 0;
 		light_position[3] = 1;
 		light_spot_direction[0] = -1;
-		light_spot_direction[1] = -2;
+		light_spot_direction[1] = 0;
 		light_spot_direction[2] = 0;
-		color_light[0] = 0.4;
+		color_light[0] = 1;
 		color_light[1] = 0;
 		color_light[2] = 0;
 		color_light[3] = 1;
 		glLightf(num_light, GL_LINEAR_ATTENUATION, 0.5);
-		glLightf(num_light, GL_QUADRATIC_ATTENUATION, 1.5);
+		glLightf(num_light, GL_QUADRATIC_ATTENUATION, 0);
 		glMaterialfv(GL_FRONT, GL_EMISSION, color_light);
 	}
 	GLfloat light_ambient[] = { 0, 0, 0, 1 };
@@ -339,10 +342,11 @@ void draw_lamp(GLfloat x, GLfloat y, GLfloat z, int size, GLfloat angle, GLenum 
 	GLfloat light_diffuse[] = { 1, 1, 0, 1 };
 	GLfloat light_position[] = { 0.0, 0.0, 0.0, 1.0 };
 
-	if (lamp_lights)
-		glEnable(num_light);
-	else
-		glDisable(num_light);
+	
+	lamp_lights ? 
+		glEnable(num_light) :glDisable(num_light);
+
+	 
 	glLightfv(num_light, GL_DIFFUSE, light_diffuse);
 	glLightfv(num_light, GL_POSITION, light_position);
 	glLightf(num_light, GL_CONSTANT_ATTENUATION, 0.0);
@@ -448,7 +452,6 @@ void set_cam() {
 	
 }
 
-
 void Update(void) {
 	glMatrixMode(GL_MODELVIEW);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -460,11 +463,6 @@ void Update(void) {
 	draw_lamp(6, -3, -0.5, 4, 90, GL_LIGHT5);
 	draw_lamp(6, 3, -0.5, 4, -90, GL_LIGHT6);
 	draw_lamp(2, -3, -0.5, 4, 90, GL_LIGHT7);
-	draw_lamp(2, 3, -0.5, 4, -90, GL_LIGHT0 + 8);
-	draw_lamp(-2, -3, -0.5, 4, 90, GL_LIGHT0 + 9);
-	draw_lamp(-2, 3, -0.5, 4, -90, GL_LIGHT0 + 10);
-	draw_lamp(-6, -3, -0.5, 4, 90, GL_LIGHT0 + 11);
-	draw_lamp(-6, 3, -0.5, 4, -90, GL_LIGHT0 + 12);
 
 	glPopMatrix();
 	glFlush();
@@ -482,10 +480,10 @@ void keyboard(unsigned char key, int x, int y)
 		car.Turn(-5);
 		break;
 	case 'w':	// W
-		car.Move(0.3);
+		car.Move(0.1);
 		break;
 	case 's':	// S	
-		car.Move(-0.3);
+		car.Move(-0.1);
 		break;
 	case 'q': 
 		lamp_lights = !lamp_lights;
@@ -570,6 +568,7 @@ int main(int argc, char **argv)
 	glutSpecialFunc(specialKeys);
 
 	Init();
+	std::cout << GL_MAX_LIGHTS;
 	glutMainLoop();
 	return 0;         
 }
