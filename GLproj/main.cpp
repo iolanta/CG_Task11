@@ -311,7 +311,7 @@ void draw_car(GLfloat x, GLfloat y, GLfloat z,GLdouble turn, int size) {
 
 void draw_lamp(GLfloat x, GLfloat y, GLfloat z, int size, GLfloat angle, GLenum num_light) {
 	glPushMatrix();
-	glTranslatef(x, y, z + (size * 0.2 + size * 0.05 + size * 0.1) );
+	glTranslatef(x, y, z + (size * 0.2 + size * 0.05 + size * 0.08) );
 	glRotatef(angle, 0.0, 0.0, 1);
 	glRotatef(90, 1, 0, 0);
 
@@ -339,11 +339,15 @@ void draw_lamp(GLfloat x, GLfloat y, GLfloat z, int size, GLfloat angle, GLenum 
 	GLfloat light_diffuse[] = { 1, 1, 0, 1 };
 	GLfloat light_position[] = { 0.0, 0.0, 0.0, 1.0 };
 
+	if (lamp_lights)
+		glEnable(num_light);
+	else
+		glDisable(num_light);
 	glLightfv(num_light, GL_DIFFUSE, light_diffuse);
 	glLightfv(num_light, GL_POSITION, light_position);
 	glLightf(num_light, GL_CONSTANT_ATTENUATION, 0.0);
-	glLightf(num_light, GL_LINEAR_ATTENUATION, 0.4);
-	glLightf(num_light, GL_QUADRATIC_ATTENUATION, 0.6);
+	glLightf(num_light, GL_LINEAR_ATTENUATION, 0.1);
+	glLightf(num_light, GL_QUADRATIC_ATTENUATION, 0.4);
 
 	GLfloat material_emission[4] = { 0.3, 0.3, 0.0, 1.0 };
 	glMaterialfv(GL_FRONT, GL_EMISSION, material_emission);
@@ -453,8 +457,14 @@ void Update(void) {
 	glPushMatrix();
 	draw_ground(-10,10,-10,10,35,35);
 	draw_car(car.x, car.y, car.z, car.get_ang(),1);
-	draw_lamp(-1, -2, -0.5, 4, 90, GL_LIGHT5);
-	draw_lamp(-1, 2, -0.5, 4, -90, GL_LIGHT6);
+	draw_lamp(6, -3, -0.5, 4, 90, GL_LIGHT5);
+	draw_lamp(6, 3, -0.5, 4, -90, GL_LIGHT6);
+	draw_lamp(2, -3, -0.5, 4, 90, GL_LIGHT7);
+	draw_lamp(2, 3, -0.5, 4, -90, GL_LIGHT0 + 8);
+	draw_lamp(-2, -3, -0.5, 4, 90, GL_LIGHT0 + 9);
+	draw_lamp(-2, 3, -0.5, 4, -90, GL_LIGHT0 + 10);
+	draw_lamp(-6, -3, -0.5, 4, 90, GL_LIGHT0 + 11);
+	draw_lamp(-6, 3, -0.5, 4, -90, GL_LIGHT0 + 12);
 
 	glPopMatrix();
 	glFlush();
@@ -478,16 +488,7 @@ void keyboard(unsigned char key, int x, int y)
 		car.Move(-0.3);
 		break;
 	case 'q': 
-		if (lamp_lights) {
-			glDisable(GL_LIGHT5);
-			glDisable(GL_LIGHT6);
-			lamp_lights = false;
-		}
-		else {
-			glEnable(GL_LIGHT5);
-			glEnable(GL_LIGHT6);
-			lamp_lights = true;
-		}
+		lamp_lights = !lamp_lights;
 		break;
 	default:
 		break;
