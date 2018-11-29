@@ -395,19 +395,6 @@ void draw_ground(GLdouble x0, GLdouble x1, GLdouble y0, GLdouble y1, int divx, i
 	glDisable(GL_TEXTURE_2D);
 }
 
-void cross(GLdouble a[], GLdouble b[], GLdouble res[]) {
-	res[0] = a[1] * b[2] - a[2] * b[1];
-	res[1] = a[2] * b[0] - a[0] * b[2];
-	res[2] = a[0] * b[1] - a[1] * b[0];
-
-}
-
-void norm(GLdouble a[]) {
-	GLdouble len = std::sqrt(a[0] + a[1] + a[2]);
-	for (size_t i = 0; i < 3; i++)
-		a[i] /= len;
-}
-
 void set_cam() {
 	
 	glLoadIdentity();
@@ -436,21 +423,12 @@ void set_cam() {
 
 
 	
-	GLdouble cam_offset = 0.6;
-
-
-	GLdouble fwd[3]{ cam_offset * std::cos(car.angle),   cam_offset * std::sin(car.angle) ,  cam_offset };
-	GLdouble tmp[3]{ 0,0,1 };
-	GLdouble right[3], up[3];
-	norm(fwd);
-	norm(tmp);
-	cross(tmp, fwd,right);
-	cross(fwd, right, up);
+	GLdouble eye[3]{ 0,0,0 };
+	GLdouble center[3]{ 0,0,0 };
+	GLdouble up[3]{ 0,0,0 };
+	car.get_cam_settings(eye, center, up);
+	gluLookAt(eye[0], eye[1], eye[2], center[0], center[1], center[2], up[0], up[1], up[2]);
 	
-	
-
-	gluLookAt(car.x + cam_offset *std::cos(car.angle), car.y + cam_offset * std::sin(car.angle), car.z + cam_offset, car.x, car.y, car.z, up[0], up[1], up[2]);
-	//gluLookAt(car.x, car.y, 4, car.x, car.y, car.z, 1, 0, 0);
 }
 
 
@@ -497,6 +475,7 @@ void keyboard(unsigned char key, int x, int y)
 }
 
 void specialKeys(int key, int x, int y) {
+	GLdouble xa = 0, za = 0, d = 0;
 	switch (key)
 	{ 
 	case GLUT_KEY_PAGE_UP:
@@ -523,10 +502,32 @@ void specialKeys(int key, int x, int y) {
 			back_lights = true;
 		}
 		break;
+	case GLUT_KEY_UP:
+		za = 1;
+		break;
+
+	case GLUT_KEY_DOWN:
+		za = -1;
+		break;
+
+	case GLUT_KEY_LEFT:
+		xa = -1;
+		break;
+
+	case GLUT_KEY_RIGHT:
+		xa = 1;
+		break;
 	default:
+		break;
+	case GLUT_KEY_F1:
+		d = 0.1;
+		break;
+	case GLUT_KEY_F2:
+		d = -0.1;
 		break;
 	}
 
+	car.TurnCam(xa, za, d);
 	glutPostRedisplay();
 }
 
