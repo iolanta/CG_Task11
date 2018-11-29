@@ -26,7 +26,7 @@ void make_textures()
 
 void Init(void)
 {
-	car.z += 1;
+	
 	glClearColor(0, 0, 0, 1.0f);
 	make_textures();
 	// рассчет освещения
@@ -186,16 +186,16 @@ void texturing_front(GLfloat size)
 	glBegin(GL_QUADS);
 
 	// Front 
-	glNormal3f(0, 0, 1); glTexCoord2f(0.0f, 0.0f); glVertex3f(-size, -size, size);  // Bottom Left
-	glNormal3f(0, 0, 1); glTexCoord2f(1.0f, 0.0f); glVertex3f(size, -size, size);  // Bottom Right 
-	glNormal3f(0, 0, 1); glTexCoord2f(1.0f, 1.0f); glVertex3f(size, size, size);  // Top Right 
-	glNormal3f(0, 0, 1); glTexCoord2f(0.0f, 1.0f); glVertex3f(-size, size, size);  // Top Left 
+	glNormal3f(0, 0, 1); glTexCoord2f(1.0f, 1.0f); glVertex3f(-size, -size, size);  // Bottom Left
+	glNormal3f(0, 0, 1); glTexCoord2f(0.0f, 1.0f); glVertex3f(size, -size, size);  // Bottom Right 
+	glNormal3f(0, 0, 1); glTexCoord2f(0.0f, 0.0f); glVertex3f(size, size, size);  // Top Right 
+	glNormal3f(0, 0, 1); glTexCoord2f(1.0f, 0.0f); glVertex3f(-size, size, size);  // Top Left 
 
 	// Back 
-	glNormal3f(0, 0, -1); glTexCoord2f(1.0f, 0.0f); glVertex3f(-size, -size, -size);  // Bottom Right 
-	glNormal3f(0, 0, -1); glTexCoord2f(1.0f, 1.0f); glVertex3f(-size, size, -size);  // Top Right
-	glNormal3f(0, 0, -1); glTexCoord2f(0.0f, 1.0f); glVertex3f(size, size, -size);  // Top Left 
-	glNormal3f(0, 0, -1); glTexCoord2f(0.0f, 0.0f); glVertex3f(size, -size, -size);  // Bottom Left
+	glNormal3f(0, 0, -1); glTexCoord2f(1.0f, 1.0f); glVertex3f(-size, -size, -size);  // Bottom Right 
+	glNormal3f(0, 0, -1);glTexCoord2f(1.0f, 0.0f);  glVertex3f(-size, size, -size);  // Top Right
+	glNormal3f(0, 0, -1); glTexCoord2f(0.0f, 0.0f); glVertex3f(size, size, -size);  // Top Left 
+	glNormal3f(0, 0, -1); glTexCoord2f(0.0f, 1.0f); glVertex3f(size, -size, -size);  // Bottom Left
 
 	glEnd();
 	glBindTexture(GL_TEXTURE_2D, texture_up);
@@ -280,16 +280,12 @@ void drawBox(GLfloat size)
 void draw_car(GLfloat x, GLfloat y, GLfloat z,GLdouble turn, int size) {
 	glPushMatrix();
 	
-	glTranslatef(x, y, z);
+	glTranslatef(x, y, z+size/4.3);
 	glRotatef(turn, 0, 0, 1);
 	glRotatef(90, 1, 0, 0);
 	glColor3f(1.0f, 1.0f, 1.0f);
 	glEnable(GL_TEXTURE_2D);
 
-	//glBindTexture(GL_TEXTURE_2D, texture_car);
-	//glutSolidCube(size * 0.3f);
-	//drawBox(size*0.3f);
-	//glDisable(GL_TEXTURE_2D);
 	texturing_car(size * 0.15f);
 
 	glPushMatrix();
@@ -299,7 +295,7 @@ void draw_car(GLfloat x, GLfloat y, GLfloat z,GLdouble turn, int size) {
 	glPopMatrix();
 
 	
-	glColor3f(0.1f, 0.1f, 0.1f);
+	glColor3f(0.0f, 0.0f, 0.0f);
 	draw_wheel(0, 0, 0, size, 0.25, -0.15, 0.07);
 	draw_wheel(0, 0, 0, size, 0.25, -0.15, -0.07);
 	draw_wheel(0, 0, 0, size, -0.08, -0.15, -0.07);
