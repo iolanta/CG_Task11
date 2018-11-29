@@ -6,7 +6,7 @@
 
 int w = 0, h = 0;
 GLfloat xrotate, yrotate, zrotate;
-bool front_lights = false, back_lights = false;
+bool front_lights = false, back_lights = false, lamp_lights = false;
 
 Lorry car;
 
@@ -313,10 +313,11 @@ void draw_car(GLfloat x, GLfloat y, GLfloat z,GLdouble turn, int size) {
 	glPopMatrix();
 }
 
-void draw_lamp(GLfloat x, GLfloat y, GLfloat z, int size, GLfloat angle) {
+void draw_lamp(GLfloat x, GLfloat y, GLfloat z, int size, GLfloat angle, GLenum num_light) {
 	glPushMatrix();
-	glTranslatef(x, y, z);
+	glTranslatef(x, y, z + (size * 0.2 + size * 0.05 + size * 0.1) );
 	glRotatef(angle, 0.0, 0.0, 1);
+	glRotatef(90, 1, 0, 0);
 
 	glColor3f(0.0f, 0.0f, 0.0f);
 	GLUquadricObj *quadObj = gluNewQuadric();
@@ -338,14 +339,30 @@ void draw_lamp(GLfloat x, GLfloat y, GLfloat z, int size, GLfloat angle) {
 	glPushMatrix();
 	glTranslatef(size * ( 0.11), size * ( 0.025), 0);
 	glRotatef(-90, 0.0, 1.0, 0.0);
+
+	GLfloat light_diffuse[] = { 1, 1, 0, 1 };
+	GLfloat light_position[] = { 0.0, 0.0, 0.0, 1.0 };
+
+	glLightfv(num_light, GL_DIFFUSE, light_diffuse);
+	glLightfv(num_light, GL_POSITION, light_position);
+	glLightf(num_light, GL_CONSTANT_ATTENUATION, 0.0);
+	glLightf(num_light, GL_LINEAR_ATTENUATION, 0.2);
+	glLightf(num_light, GL_QUADRATIC_ATTENUATION, 0.4);
+
+	GLfloat material_emission[4] = { 0.5, 0.5, 0.0, 1.0 };
+	glMaterialfv(GL_FRONT, GL_EMISSION, material_emission);
+
 	gluCylinder(quadObj, size * 0.01, size * 0.01, size * 0.08, size * 15, size * 15);
+	material_emission[0] = 0;
+	material_emission[1] = 0;
+	glMaterialfv(GL_FRONT, GL_EMISSION, material_emission);
+
 	glPopMatrix();
 
 	glColor3f(0.0f, 0.0f, 0.0f);
 	glPushMatrix();
-	glTranslatef(size * (0.12), size * ( 0.025), 0 );
-	glRotatef(-90, 0.0, 1.0, 0.0);
-	gluCylinder(quadObj, size * 0.01, size * 0.01, size * 0.01, size * 15, size * 15);
+	glTranslatef(size * 0.11, size * 0.025, 0);
+	glutSolidSphere(size * 0.011, size * 10, size * 10);
 	glPopMatrix();
 
 	glPopMatrix();
@@ -462,7 +479,9 @@ void Update(void) {
 	glPushMatrix();
 	draw_ground(-10,10,-10,10,35,35);
 	draw_car(car.x, car.y, car.z, car.get_ang(),1);
-	
+	draw_lamp(-1, -2, -0.5, 4, 90, GL_LIGHT5);
+	draw_lamp(-1, 2, -0.5, 4, -90, GL_LIGHT6);
+
 	glPopMatrix();
 	glFlush();
 	glutSwapBuffers();
@@ -473,24 +492,31 @@ void keyboard(unsigned char key, int x, int y)
 	switch (key)
 	{
 	case 'a':	// A
-		
 		car.Turn(5);
 		break;
 	case 'd':	// D
-		
 		car.Turn(-5);
 		break;
 	case 'w':	// W
-		
 		car.Move(0.3);
 		break;
-	case 's':	// S
-		
+	case 's':	// S	
 		car.Move(-0.3);
+		break;
+	case 'q': 
+		if (lamp_lights) {
+			glDisable(GL_LIGHT5);
+			glDisable(GL_LIGHT6);
+			lamp_lights = false;
+		}
+		else {
+			glEnable(GL_LIGHT5);
+			glEnable(GL_LIGHT6);
+			lamp_lights = true;
+		}
 		break;
 	default:
 		break;
-
 	}
 
 	glutPostRedisplay();
