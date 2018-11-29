@@ -346,10 +346,10 @@ void draw_lamp(GLfloat x, GLfloat y, GLfloat z, int size, GLfloat angle, GLenum 
 	glLightfv(num_light, GL_DIFFUSE, light_diffuse);
 	glLightfv(num_light, GL_POSITION, light_position);
 	glLightf(num_light, GL_CONSTANT_ATTENUATION, 0.0);
-	glLightf(num_light, GL_LINEAR_ATTENUATION, 0.2);
-	glLightf(num_light, GL_QUADRATIC_ATTENUATION, 0.4);
+	glLightf(num_light, GL_LINEAR_ATTENUATION, 0.4);
+	glLightf(num_light, GL_QUADRATIC_ATTENUATION, 0.6);
 
-	GLfloat material_emission[4] = { 0.5, 0.5, 0.0, 1.0 };
+	GLfloat material_emission[4] = { 0.3, 0.3, 0.0, 1.0 };
 	glMaterialfv(GL_FRONT, GL_EMISSION, material_emission);
 
 	gluCylinder(quadObj, size * 0.01, size * 0.01, size * 0.08, size * 15, size * 15);
