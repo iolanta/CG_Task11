@@ -247,48 +247,6 @@ void texturing_front(GLfloat size)
 }
 
 
-void drawBox(GLfloat size)
-{
-	static GLfloat n[6][3] =
-	{
-	  {-1.0, 0.0, 0.0},
-	  {0.0, 1.0, 0.0},
-	  {1.0, 0.0, 0.0},
-	  {0.0, -1.0, 0.0},
-	  {0.0, 0.0, 1.0},
-	  {0.0, 0.0, -1.0}
-	};
-	static GLint faces[6][4] =
-	{
-	  {0, 1, 2, 3},
-	  {3, 2, 6, 7},
-	  {7, 6, 5, 4},
-	  {4, 5, 1, 0},
-	  {5, 6, 2, 1},
-	  {7, 4, 0, 3}
-	};
-	GLfloat v[8][3];
-	GLint i;
-
-	v[0][0] = v[1][0] = v[2][0] = v[3][0] = -size / 2;
-	v[4][0] = v[5][0] = v[6][0] = v[7][0] = size / 2;
-	v[0][1] = v[1][1] = v[4][1] = v[5][1] = -size / 2;
-	v[2][1] = v[3][1] = v[6][1] = v[7][1] = size / 2;
-	v[0][2] = v[3][2] = v[4][2] = v[7][2] = -size / 2;
-	v[1][2] = v[2][2] = v[5][2] = v[6][2] = size / 2;
-
-	for (i = 5; i >= 0; i--) {
-		glBegin(GL_QUADS);
-		glNormal3fv(&n[i][0]);
-		glVertex3fv(&v[faces[i][0]][0]); glTexCoord2f(0, 0);
-		glVertex3fv(&v[faces[i][1]][0]); glTexCoord2f(0, 1);
-		glVertex3fv(&v[faces[i][2]][0]); glTexCoord2f(1, 1);
-		glVertex3fv(&v[faces[i][3]][0]); glTexCoord2f(1, 0);
-		glEnd();
-	}
-}
-
-
 void draw_car(GLfloat x, GLfloat y, GLfloat z,GLdouble turn, int size) {
 	glPushMatrix();
 	
@@ -424,19 +382,20 @@ void set_cam() {
 	
 	glLoadIdentity();
 
-	GLfloat light_diffuse[] = { 0.1, 0.1, 0.1, 1 };
+	GLfloat light_diffuse[] = { 0.5, 0.5, 0.5, 1 };
 	GLfloat light_position[] = {0,0,0,1 };
 	GLfloat light_ambient[] = { 0.05, 0.05, 0.05, 1 };
 	GLfloat light_specular[] = { 0.1, 0.1, 0.1, 1 };
+	GLfloat  light_spot_direction[] = { 0, 0, -1 , 1};
 
 	glEnable(GL_LIGHT0);
 	glLightfv(GL_LIGHT0, GL_AMBIENT, light_ambient);
 	glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse);
 	glLightfv(GL_LIGHT0, GL_POSITION, light_position);
 	glLightfv(GL_LIGHT0, GL_SPECULAR, light_specular);
-	//glLightf(GL_LIGHT0, GL_SPOT_CUTOFF, 40);
-	//glLightf(GL_LIGHT0, GL_SPOT_EXPONENT, 10);
-	//glLightfv(GL_LIGHT0, GL_SPOT_DIRECTION, light_spot_direction);
+	glLightf(GL_LIGHT0, GL_SPOT_CUTOFF, 30);
+	glLightf(GL_LIGHT0, GL_SPOT_EXPONENT, 10);
+	glLightfv(GL_LIGHT0, GL_SPOT_DIRECTION, light_spot_direction);
 
 	/*GLfloat params[4] = {0,0,0,1};
 	GLfloat params1[4] = { 0.0,0.0,0.0,0 };
